@@ -111,5 +111,66 @@ Valid starting     Expires            Service principal
 [root@ipa ~]# klist
 klist: Credentials cache 'KCM:0' not found
 ```
-Мы можем зайти в Web-интерфейс нашего FreeIPA-сервера, для этого на нашей хостой машине нужно прописать следующую строку в файле Hosts:
-`192.168.56.10 ipa.otus.lan`
+Мы можем зайти в Web-интерфейс нашего FreeIPA-сервера, для этого на нашей хостой машине нужно прописать следующую строку в файле Hosts `192.168.56.10 ipa.otus.lan`:
+
+![Screenshot from 2024-08-19 20-29-49](https://github.com/user-attachments/assets/7b8aa74e-a8f5-4cff-9a51-19eb460ff95c)
+
+![Screenshot from 2024-08-19 20-31-23](https://github.com/user-attachments/assets/665d6ad8-508e-4aa4-acac-054560c11a90)
+
+__Конфигурация клиентов__
+
+Настройка клиента похожа на настройку сервера. На хосте также нужно:
+- Настроить синхронизацию времени и часовой пояс
+- Настроить (или отключить) firewall
+- Настроить (или отключить) SElinux
+- В файле hosts должна быть указана запись с FreeIPA-сервером и хостом
+
+Хостов, которые требуется добавить к серверу может быть много, для упрощения нашей работы настройки будут выполняться с помощью Ansible. 
+
+__Проверка работы LDAP__
+
+На сервере FreeIPA создадим пользователя и попробуем залогиниться к клиенту. 
+
+Авторизируемся на сервере:
+```
+[root@ipa ~]# kinit admin
+```
+Создадим пользователя otus-user:
+```
+[root@ipa ~]# ipa user-add otus-user --first=Otus --last=User --password
+Password: 
+Enter Password again to verify: 
+----------------------
+Added user "otus-user"
+----------------------
+  User login: otus-user
+  First name: Otus
+  Last name: User
+  Full name: Otus User
+  Display name: Otus User
+  Initials: OU
+  Home directory: /home/otus-user
+  GECOS: Otus User
+  Login shell: /bin/sh
+  Principal name: otus-user@OTUS.LAN
+  Principal alias: otus-user@OTUS.LAN
+  User password expiration: 20240819174432Z
+  Email address: otus-user@otus.lan
+  UID: 868000003
+  GID: 868000003
+  Password: True
+  Member of groups: ipausers
+  Kerberos keys available: True
+```
+На хосте client1 или client2 выполним команду:
+```
+[root@client1 ~]# kinit otus-user
+Password for otus-user@OTUS.LAN: 
+Password expired.  You must change it now.
+Enter new password: 
+Enter it again: 
+[root@client1 ~]#
+```
+Система запросит у нас пароль и попросит ввести новый пароль. 
+
+На этом процесс добавления хостов к FreeIPA-серверу завершен.
