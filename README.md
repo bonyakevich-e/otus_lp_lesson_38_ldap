@@ -40,7 +40,7 @@ __Настройка FreeIPA-сервер _ipa.otus.lan_.__
 
 Для дальнейшей настройки FreeIPA нам потребуется, чтобы DNS-сервер хранил запись о нашем LDAP-сервере. В рамках данной лабораторной работы мы не будем настраивать отдельный DNS-сервер и просто добавим запись в файл /etc/hosts:
 ```
-192.168.57.10 ipa.otus.lan ipa
+192.168.56.10 ipa.otus.lan ipa
 ```
 Установим модуль DL1:
 ```
@@ -68,7 +68,7 @@ NetBIOS domain name [OTUS]: <Нажимаем Enter>
 Do you want to configure chrony with NTP server or pool address? [no]: no
 The IPA Master Server will be configured with:
 Hostname:       ipa.otus.lan
-IP address(es): 192.168.57.10
+IP address(es): 192.168.56.10
 Domain name:    otus.lan
 Realm name:     OTUS.LAN
 
@@ -80,5 +80,36 @@ Chaining:     self-signed
 Continue to configure the system with these values? [no]: yes
 ```
 
-Далее начнется процесс установки. Процесс установки занимает примерно 10-15 минут (иногда время может быть другим). Если мастер успешно выполнит настройку FreeIPA то в конце мы получим сообщение: 
-The ipa-server-install command was successful
+Если получаем ошибку `Pv6 stack is enabled in the kernel but there is no interface that has ::1 address assigned.`, нужно активировать ipv6 на lo0 интерфейсе:
+```
+[root@ipa ~]# vim /etc/sysctl.conf
+net.ipv6.conf.lo.disable_ipv6 = 0
+[root@ipa ~]# sysctl -p
+```
+Далее начнется процесс установки. Процесс установки занимает примерно 5 минут (иногда время может быть другим). Если мастер успешно выполнит настройку FreeIPA то в конце мы получим сообщение: 
+The ipa-server-install command was successful.
+
+При вводе параметров установки мы вводили 2 пароля:
+- Directory Manager password — это пароль администратора сервера каталогов, У этого пользователя есть полный доступ к каталогу.
+- IPA admin password — пароль от пользователя FreeIPA admin
+
+После успешной установки FreeIPA, проверим, что сервер Kerberos может выдать нам билет:
+```
+[root@ipa ~]# kinit admin
+Password for admin@OTUS.LAN:
+
+[root@ipa ~]# klist
+Ticket cache: KCM:0
+Default principal: admin@OTUS.LAN
+
+Valid starting     Expires            Service principal
+08/19/24 19:03:34  08/20/24 18:21:59  krbtgt/OTUS.LAN@OTUS.LAN
+```
+Для удаление полученного билета:
+```
+[root@ipa ~]# kdestroy
+[root@ipa ~]# klist
+klist: Credentials cache 'KCM:0' not found
+```
+Мы можем зайти в Web-интерфейс нашего FreeIPA-сервера, для этого на нашей хостой машине нужно прописать следующую строку в файле Hosts:
+`192.168.56.10 ipa.otus.lan`
