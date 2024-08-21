@@ -23,14 +23,12 @@ Vagrant.configure("2") do |config|
       config.vm.define opts[:name] do |config|
         config.vm.hostname = opts[:name]
         config.vm.network "private_network", ip: opts[:ip]
+      end    
+    end
 
     config.vm.provision "ansible" do |ansible|
       ansible.playbook = "ansible/provision.yaml"
     end
 
-      end
-
-    end
-    
 end
 
