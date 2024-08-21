@@ -14,26 +14,26 @@
 ### Инструкция по выполнению домашнего задания:
 
 Создаем 3 виртуальных машины с ОС CentOS 8 Stream:
-```
+```console
 # vagrant up
 ```
 __Настройка FreeIPA-сервер _ipa.otus.lan_.__
 Установим часовой пояс: timedatectl set-timezone Europe/Moscow:
-```
+```console
 [root@ipa ~]# timedatectl set-timezone Europe/Moscow
 ```
 Установим утилиту chrony:
-```
+```console
 [root@ipa ~]# yum install -y chrony
 [root@ipa ~]# systemctl enable chronyd --now
 ```
 Выключаем Firewall:
-```
+```console
 [root@ipa ~]# systemctl stop firewalld
 [root@ipa ~]# systemctl disable firewalld
 ```
 Остановим Selinux:
-```
+```console
 [root@ipa ~]# setenforce 0
 ```
 Поменяем в файле /etc/selinux/config, параметр Selinux на disabled.
@@ -43,15 +43,15 @@ __Настройка FreeIPA-сервер _ipa.otus.lan_.__
 192.168.56.10 ipa.otus.lan ipa
 ```
 Установим модуль DL1:
-```
+```console
 [root@ipa ~]# yum install -y @idm:DL1
 ```
 Установим FreeIPA-сервер:
-```
+```console
 [root@ipa ~]# yum install -y ipa-server
 ```
 Запустим скрипт установки:
-```
+```console
 [root@ipa ~]# ipa-server-install
 ```
 Далее, нам потребуется указать параметры нашего LDAP-сервера, после ввода каждого параметра нажимаем Enter, если нас устраивает параметр, указанный в квадратных скобках, то можно сразу нажимать Enter:
@@ -81,7 +81,7 @@ Continue to configure the system with these values? [no]: yes
 ```
 
 Если получаем ошибку `Pv6 stack is enabled in the kernel but there is no interface that has ::1 address assigned.`, нужно активировать ipv6 на lo0 интерфейсе:
-```
+```console
 [root@ipa ~]# vim /etc/sysctl.conf
 net.ipv6.conf.lo.disable_ipv6 = 0
 [root@ipa ~]# sysctl -p
@@ -94,7 +94,7 @@ The ipa-server-install command was successful.
 - IPA admin password — пароль от пользователя FreeIPA admin
 
 После успешной установки FreeIPA, проверим, что сервер Kerberos может выдать нам билет:
-```
+```console
 [root@ipa ~]# kinit admin
 Password for admin@OTUS.LAN:
 
@@ -106,7 +106,7 @@ Valid starting     Expires            Service principal
 08/19/24 19:03:34  08/20/24 18:21:59  krbtgt/OTUS.LAN@OTUS.LAN
 ```
 Для удаление полученного билета:
-```
+```console
 [root@ipa ~]# kdestroy
 [root@ipa ~]# klist
 klist: Credentials cache 'KCM:0' not found
@@ -132,11 +132,11 @@ __Проверка работы LDAP__
 На сервере FreeIPA создадим пользователя и попробуем залогиниться к клиенту. 
 
 Авторизируемся на сервере:
-```
+```console
 [root@ipa ~]# kinit admin
 ```
 Создадим пользователя otus-user:
-```
+```console
 [root@ipa ~]# ipa user-add otus-user --first=Otus --last=User --password
 Password: 
 Enter Password again to verify: 
@@ -163,7 +163,7 @@ Added user "otus-user"
   Kerberos keys available: True
 ```
 На хосте client1 или client2 выполним команду:
-```
+```console
 [root@client1 ~]# kinit otus-user
 Password for otus-user@OTUS.LAN: 
 Password expired.  You must change it now.
