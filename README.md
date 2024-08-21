@@ -19,7 +19,7 @@
 # vagrant up
 ```
 __Настройка FreeIPA-сервер _ipa.otus.lan_.__
-Установим часовой пояс: timedatectl set-timezone Europe/Moscow:
+Установим часовой пояс:
 ```console
 [root@ipa ~]# timedatectl set-timezone Europe/Moscow
 ```
